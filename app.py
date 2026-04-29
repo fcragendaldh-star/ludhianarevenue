@@ -43,12 +43,37 @@ except Exception as e:
     logger.warning(f"Google Drive module not importable: {e}")
 
 
-def _get_credentials_json() -> str:
-    """Retrieve service account JSON from Streamlit secrets or env."""
+def _secret_to_plain(value):
+    if hasattr(value, "to_dict"):
+        return value.to_dict()
+    if isinstance(value, dict):
+        return dict(value)
+    return value
+
+
+def _get_credentials_json():
+    """Retrieve service account credentials from Streamlit secrets or env."""
+    for secret_key in (
+        "GOOGLE_APPLICATION_CREDENTIALS_JSON",
+        "gcp_service_account",
+        "google_service_account",
+        "service_account",
+    ):
+        try:
+            creds = st.secrets.get(secret_key)
+        except Exception:
+            creds = None
+        if creds:
+            return _secret_to_plain(creds)
+
     try:
-        return st.secrets["GOOGLE_APPLICATION_CREDENTIALS_JSON"]
+        root_secrets = st.secrets.to_dict()
+        if root_secrets.get("type") == "service_account":
+            return root_secrets
     except Exception:
-        return os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON", "")
+        pass
+
+    return os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON", "")
 
 
 def _get_folder_id(secret_key: str, default: str = "") -> str:
@@ -67,7 +92,10 @@ def drive_status_message(agenda: dict) -> str:
     if not folder_id:
         return f"Google Drive folder ID is missing for {agenda['folder_secret']}."
     if not _get_credentials_json():
-        return "Google Drive credentials are missing. Add GOOGLE_APPLICATION_CREDENTIALS_JSON in Streamlit secrets."
+        return (
+            "Google Drive credentials are missing. Add GOOGLE_APPLICATION_CREDENTIALS_JSON "
+            "or a [gcp_service_account] block in Streamlit secrets."
+        )
     return (
         "Google Drive is configured. If data is still empty, share this Drive folder "
         "with the service account email and click Refresh All."

@@ -29,7 +29,7 @@ For each agenda, create a dedicated folder in Google Drive:
 ### 2. Secrets
 
 Copy `.streamlit/secrets.toml.template` → `.streamlit/secrets.toml` and fill in:
-- `GOOGLE_APPLICATION_CREDENTIALS_JSON` — your service account JSON
+- `GOOGLE_APPLICATION_CREDENTIALS_JSON` or `[gcp_service_account]` - your service account credentials
 - One `AGENDA_<KEY>_FOLDER_ID` per agenda
 
 On **Streamlit Cloud**, paste each key-value in Settings → Secrets.
