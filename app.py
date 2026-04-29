@@ -1049,7 +1049,7 @@ def render_svamitva_lowest_progress(df_latest: pd.DataFrame, df_prev: pd.DataFra
         return merged.sort_values(["Progress", current_col], ascending=[True, False]).head(5)
 
     st.markdown("### 🚦 Top 5 Lowest Progress")
-    st.caption("These cards show individual sub-tehsil/officer units, so their values may be lower than the subdivision totals in the chart above.")
+    st.caption("These cards are ranked by progress since the previous review, not by highest current pending.")
     panels = []
     for label, metric_col in pending_metrics:
         ranked = _rank_lowest_progress(metric_col)
@@ -1076,19 +1076,24 @@ def render_svamitva_lowest_progress(df_latest: pd.DataFrame, df_prev: pd.DataFra
             officer = str(row.get("Officer", "Unknown officer")).strip() or "Unknown officer"
             sub_division = row.get("Sub Division", "")
             sub_tehsil = row.get(sub_tehsil_col, "")
-            title_parts = [str(v).strip() for v in [sub_division, officer] if str(v).strip()]
-            title = " - ".join(title_parts) if title_parts else officer
-            meta_parts = [str(v).strip() for v in [sub_tehsil] if str(v).strip()]
-            meta = " | ".join(meta_parts) if meta_parts else row.get("Review Unit", "")
+            location_parts = [str(v).strip() for v in [sub_division, sub_tehsil] if str(v).strip()]
+            location = " | ".join(location_parts)
+            title = f"{location} - {officer}" if location else officer
+            if progress < 0:
+                meta = f"Pending increased by {fmt(abs(progress))} since previous review"
+            elif progress == 0:
+                meta = "No pending reduction since previous review"
+            else:
+                meta = f"Reduced by {fmt(progress)} since previous review"
 
             cards.append(
                 f'<div class="officer-progress-tab">'
                 f'<div class="officer-progress-tab-title">{esc(title)}</div>'
                 f'<div class="officer-progress-meta">{esc(meta)}</div>'
                 f'<div class="officer-progress-stats">'
-                f'<div class="officer-progress-stat"><span>Unit Previous</span><strong>{fmt(previous)}</strong></div>'
-                f'<div class="officer-progress-stat"><span>Unit Current</span><strong>{fmt(current)}</strong></div>'
-                f'<div class="officer-progress-stat"><span>Unit Change</span><strong>{change:+,.0f}</strong></div>'
+                f'<div class="officer-progress-stat"><span>Previous</span><strong>{fmt(previous)}</strong></div>'
+                f'<div class="officer-progress-stat"><span>Current</span><strong>{fmt(current)}</strong></div>'
+                f'<div class="officer-progress-stat"><span>Change</span><strong>{change:+,.0f}</strong></div>'
                 f'</div>'
                 f'<div class="officer-progress-status {status_class}">{status}</div>'
                 f'</div>'
