@@ -961,6 +961,7 @@ def render_svamitva_charts(df_all: pd.DataFrame, df_latest: pd.DataFrame, df_pre
 
     with col_group:
         st.markdown(f"### 🏢 Latest by {group_col}")
+        st.caption(f"These bars show total pendency after adding every sub-tehsil/officer under each {group_col}.")
         group = (df_latest.groupby(group_col, as_index=False)[available]
                  .sum().sort_values("GROUND TRUTHING PENDING", ascending=False).head(12))
         if not group.empty:
@@ -1048,6 +1049,7 @@ def render_svamitva_lowest_progress(df_latest: pd.DataFrame, df_prev: pd.DataFra
         return merged.sort_values(["Progress", current_col], ascending=[True, False]).head(5)
 
     st.markdown("### 🚦 Top 5 Lowest Progress")
+    st.caption("These cards show individual sub-tehsil/officer units, so their values may be lower than the subdivision totals in the chart above.")
     panels = []
     for label, metric_col in pending_metrics:
         ranked = _rank_lowest_progress(metric_col)
@@ -1084,9 +1086,9 @@ def render_svamitva_lowest_progress(df_latest: pd.DataFrame, df_prev: pd.DataFra
                 f'<div class="officer-progress-tab-title">{esc(title)}</div>'
                 f'<div class="officer-progress-meta">{esc(meta)}</div>'
                 f'<div class="officer-progress-stats">'
-                f'<div class="officer-progress-stat"><span>Previous</span><strong>{fmt(previous)}</strong></div>'
-                f'<div class="officer-progress-stat"><span>Current</span><strong>{fmt(current)}</strong></div>'
-                f'<div class="officer-progress-stat"><span>Net Change</span><strong>{change:+,.0f}</strong></div>'
+                f'<div class="officer-progress-stat"><span>Unit Previous</span><strong>{fmt(previous)}</strong></div>'
+                f'<div class="officer-progress-stat"><span>Unit Current</span><strong>{fmt(current)}</strong></div>'
+                f'<div class="officer-progress-stat"><span>Unit Change</span><strong>{change:+,.0f}</strong></div>'
                 f'</div>'
                 f'<div class="officer-progress-status {status_class}">{status}</div>'
                 f'</div>'
