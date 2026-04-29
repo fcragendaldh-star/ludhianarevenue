@@ -14,6 +14,8 @@ import logging
 import os
 import html
 from io import BytesIO
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from agenda_config import AGENDAS, AGENDA_MAP
 
@@ -33,6 +35,7 @@ st.set_page_config(
 DATA_FOLDER_BASE = Path("data")
 FILENAME_DATE_RE = re.compile(r"(\d{8})")   # YYYYMMDD
 DATE_FORMAT = "%Y%m%d"
+APP_TIMEZONE = ZoneInfo("Asia/Kolkata")
 
 # ─────────────────────────────── Google Drive ───────────────────────────────
 GOOGLE_DRIVE_AVAILABLE = False
@@ -109,6 +112,10 @@ def fmt(num) -> str:
         return f"{int(num):,}"
     except Exception:
         return "0"
+
+
+def current_app_time_label() -> str:
+    return datetime.now(APP_TIMEZONE).strftime("%d %b %Y, %I:%M %p IST")
 
 
 def pct_change(current, previous) -> float:
@@ -1478,7 +1485,7 @@ def main():
     inject_css()
 
     # ── Header ──
-    today_str = pd.Timestamp.now().strftime("%d %b %Y, %I:%M %p")
+    today_str = current_app_time_label()
     hcol1, hcol2 = st.columns([5, 1])
     with hcol1:
         st.markdown(f"""
