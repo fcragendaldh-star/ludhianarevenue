@@ -60,6 +60,7 @@ AGENDAS = [
         "icon": "🏡",
         "description": "",
         "folder_secret": "AGENDA_SVAMITVA_FOLDER_ID",
+        "folder_id": "1IuqoL6mkvmPN_6uiUwOLYElnC72s_e5R",
         "columns": [
             "GROUND TRUTHING PENDING",
             "PENDING MAP 2",

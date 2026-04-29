@@ -51,12 +51,27 @@ def _get_credentials_json() -> str:
         return os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON", "")
 
 
-def _get_folder_id(secret_key: str) -> str:
+def _get_folder_id(secret_key: str, default: str = "") -> str:
     """Retrieve a per-agenda folder ID from Streamlit secrets or env."""
     try:
-        return st.secrets[secret_key]
+        folder_id = st.secrets[secret_key]
     except Exception:
-        return os.getenv(secret_key, "")
+        folder_id = os.getenv(secret_key, "")
+    return folder_id or default
+
+
+def drive_status_message(agenda: dict) -> str:
+    folder_id = _get_folder_id(agenda["folder_secret"], agenda.get("folder_id", ""))
+    if not GOOGLE_DRIVE_AVAILABLE:
+        return "Google Drive libraries are not available. Check requirements installation."
+    if not folder_id:
+        return f"Google Drive folder ID is missing for {agenda['folder_secret']}."
+    if not _get_credentials_json():
+        return "Google Drive credentials are missing. Add GOOGLE_APPLICATION_CREDENTIALS_JSON in Streamlit secrets."
+    return (
+        "Google Drive is configured. If data is still empty, share this Drive folder "
+        "with the service account email and click Refresh All."
+    )
 
 
 # ─────────────────────────────── helpers ────────────────────────────────────
@@ -195,7 +210,7 @@ def _load_agenda_files(agenda: dict, max_files: int = 10) -> pd.DataFrame:
     use_drive = False
     storage = None
     if GOOGLE_DRIVE_AVAILABLE:
-        folder_id = _get_folder_id(agenda["folder_secret"])
+        folder_id = _get_folder_id(agenda["folder_secret"], agenda.get("folder_id", ""))
         creds_json = _get_credentials_json()
         if folder_id and creds_json:
             try:
@@ -206,7 +221,11 @@ def _load_agenda_files(agenda: dict, max_files: int = 10) -> pd.DataFrame:
 
     if use_drive and storage:
         drive_files = storage.list_files()
-        excel_files = [f for f in drive_files if f["name"].lower().endswith((".xlsx", ".xls"))]
+        excel_files = [
+            f for f in drive_files
+            if f["name"].lower().endswith((".xlsx", ".xls"))
+            or f.get("mimeType") == "application/vnd.google-apps.spreadsheet"
+        ]
 
         def _date_key(f):
             m = FILENAME_DATE_RE.search(f["name"])
@@ -224,7 +243,7 @@ def _load_agenda_files(agenda: dict, max_files: int = 10) -> pd.DataFrame:
         for drv_file in excel_files:
             fname = drv_file["name"]
             try:
-                data = storage.download_file(drv_file["id"])
+                data = storage.download_file(drv_file["id"], drv_file.get("mimeType", ""))
                 if not data.getvalue():
                     failed.append((fname, "empty")); continue
                 df = pd.read_excel(data, engine="openpyxl")
@@ -605,6 +624,7 @@ def render_no_data(agenda: dict):
         Or place <code>.xlsx</code> files in <code>data/{folder_name}/</code> for local testing.</p>
     </div>
     """, unsafe_allow_html=True)
+    st.info(drive_status_message(agenda))
 
 
 def render_kpi_row(df_latest: pd.DataFrame, df_prev: pd.DataFrame, agenda: dict):

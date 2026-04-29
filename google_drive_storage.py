@@ -50,29 +50,36 @@ class GoogleDriveStorage:
             )
 
     def list_files(self) -> List[dict]:
-        """List all Excel files in the configured folder."""
+        """List Excel-compatible files in the configured folder."""
         try:
             query = (
                 f"'{self.folder_id}' in parents and "
                 "(mimeType='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' "
-                "or mimeType='application/vnd.ms-excel') and trashed=false"
+                "or mimeType='application/vnd.ms-excel' "
+                "or mimeType='application/vnd.google-apps.spreadsheet') and trashed=false"
             )
             results = self.drive_service.files().list(
                 q=query,
-                fields="files(id, name, createdTime, modifiedTime)",
+                fields="files(id, name, mimeType, createdTime, modifiedTime)",
                 orderBy="modifiedTime desc",
             ).execute()
             files = results.get("files", [])
-            logger.info(f"Found {len(files)} Excel files in folder {self.folder_id[:12]}...")
+            logger.info(f"Found {len(files)} Excel-compatible files in folder {self.folder_id[:12]}...")
             return files
         except Exception as e:
             logger.error(f"Error listing files: {e}")
             return []
 
-    def download_file(self, file_id: str) -> BytesIO:
+    def download_file(self, file_id: str, mime_type: str = "") -> BytesIO:
         """Download a file by its Drive ID."""
         try:
-            request = self.drive_service.files().get_media(fileId=file_id)
+            if mime_type == "application/vnd.google-apps.spreadsheet":
+                request = self.drive_service.files().export_media(
+                    fileId=file_id,
+                    mimeType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                )
+            else:
+                request = self.drive_service.files().get_media(fileId=file_id)
             buf = BytesIO()
             downloader = self.MediaIoBaseDownload(buf, request)
             done = False
