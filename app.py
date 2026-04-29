@@ -541,54 +541,54 @@ h3 {
 .lowest-progress-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1rem;
+    gap: 0.75rem;
     align-items: start;
 }
 .lowest-progress-panel h4 {
     color: #1d2733;
-    font-size: 1.2rem;
+    font-size: 1.05rem;
     font-weight: 700;
-    margin: 0 0 0.7rem;
+    margin: 0 0 0.55rem;
 }
 .officer-progress-tab {
     background: #fff;
     border: 1px solid #ffcdd2;
     border-radius: 8px;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
     overflow: hidden;
     box-shadow: 0 1px 6px rgba(183,28,28,0.11);
 }
 .officer-progress-tab-title {
     background: #c62828;
     color: #fff;
-    font-size: 0.95rem;
+    font-size: 0.86rem;
     font-weight: 800;
     line-height: 1.25;
-    padding: 0.65rem 0.8rem;
+    padding: 0.45rem 0.65rem;
 }
 .officer-progress-meta {
     color: #6b7785;
-    font-size: 0.78rem;
+    font-size: 0.72rem;
     font-weight: 600;
-    padding: 0.55rem 0.8rem 0;
+    padding: 0.4rem 0.65rem 0;
 }
 .officer-progress-stats {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.45rem;
-    padding: 0.7rem 0.8rem 0.75rem;
+    gap: 0.35rem;
+    padding: 0.45rem 0.65rem 0.5rem;
 }
 .officer-progress-stat {
     background: #fafbfc;
     border: 1px solid #edf0f3;
     border-radius: 6px;
-    padding: 0.5rem;
+    padding: 0.35rem 0.45rem;
     min-width: 0;
 }
 .officer-progress-stat span {
     display: block;
     color: #7b8794;
-    font-size: 0.66rem;
+    font-size: 0.58rem;
     font-weight: 700;
     text-transform: uppercase;
 }
@@ -596,15 +596,15 @@ h3 {
     display: block;
     color: #0a2240;
     font-family: 'DM Mono', monospace;
-    font-size: 1rem;
+    font-size: 0.88rem;
     margin-top: 0.1rem;
 }
 .officer-progress-status {
     display: inline-block;
-    margin: 0 0.8rem 0.75rem;
+    margin: 0 0.65rem 0.55rem;
     border-radius: 999px;
-    padding: 0.28rem 0.65rem;
-    font-size: 0.72rem;
+    padding: 0.22rem 0.55rem;
+    font-size: 0.65rem;
     font-weight: 800;
 }
 .officer-progress-status.worsened {
@@ -1064,15 +1064,17 @@ def render_svamitva_lowest_progress(df_latest: pd.DataFrame, df_prev: pd.DataFra
                 status = "Low progress"
                 status_class = "low-progress"
 
-            officer = row.get("Officer", "Unknown officer")
+            officer = str(row.get("Officer", "Unknown officer")).strip() or "Unknown officer"
             sub_division = row.get("Sub Division", "")
             sub_tehsil = row.get(sub_tehsil_col, "")
-            meta_parts = [str(v).strip() for v in [sub_division, sub_tehsil] if str(v).strip()]
+            title_parts = [str(v).strip() for v in [sub_division, officer] if str(v).strip()]
+            title = " - ".join(title_parts) if title_parts else officer
+            meta_parts = [str(v).strip() for v in [sub_tehsil] if str(v).strip()]
             meta = " | ".join(meta_parts) if meta_parts else row.get("Review Unit", "")
 
             cards.append(
                 f'<div class="officer-progress-tab">'
-                f'<div class="officer-progress-tab-title">{esc(officer)}</div>'
+                f'<div class="officer-progress-tab-title">{esc(title)}</div>'
                 f'<div class="officer-progress-meta">{esc(meta)}</div>'
                 f'<div class="officer-progress-stats">'
                 f'<div class="officer-progress-stat"><span>Previous</span><strong>{fmt(previous)}</strong></div>'
