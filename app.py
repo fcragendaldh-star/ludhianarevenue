@@ -1393,14 +1393,14 @@ def render_agenda_tab(agenda: dict):
 
     with fcol2:
         group_opts = sorted(df_all[group_col].dropna().unique().astype(str))
-        sel_groups = st.multiselect(group_col, group_opts, key=f"group_{agenda['key']}")
+        selected_group = st.selectbox(group_col, ["All", *group_opts], key=f"group_single_{agenda['key']}")
 
     # ── Apply filters ──
     df = df_all.copy()
     if dr and len(dr) == 2:
         df = df[(df["__date"] >= pd.to_datetime(dr[0])) & (df["__date"] <= pd.to_datetime(dr[1]))]
-    if sel_groups:
-        df = df[df[group_col].astype(str).isin(sel_groups)]
+    if selected_group != "All":
+        df = df[df[group_col].astype(str) == selected_group]
 
     latest_date = df["__date"].max()
     if pd.notna(latest_date):
