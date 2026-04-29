@@ -1070,35 +1070,26 @@ def render_svamitva_lowest_progress(df_latest: pd.DataFrame, df_prev: pd.DataFra
             meta_parts = [str(v).strip() for v in [sub_division, sub_tehsil] if str(v).strip()]
             meta = " | ".join(meta_parts) if meta_parts else row.get("Review Unit", "")
 
-            cards.append(f"""
-                <div class="officer-progress-tab">
-                    <div class="officer-progress-tab-title">{esc(officer)}</div>
-                    <div class="officer-progress-meta">{esc(meta)}</div>
-                    <div class="officer-progress-stats">
-                        <div class="officer-progress-stat">
-                            <span>Previous</span>
-                            <strong>{fmt(previous)}</strong>
-                        </div>
-                        <div class="officer-progress-stat">
-                            <span>Current</span>
-                            <strong>{fmt(current)}</strong>
-                        </div>
-                        <div class="officer-progress-stat">
-                            <span>Net Change</span>
-                            <strong>{change:+,.0f}</strong>
-                        </div>
-                    </div>
-                    <div class="officer-progress-status {status_class}">{status}</div>
-                </div>
-            """)
+            cards.append(
+                f'<div class="officer-progress-tab">'
+                f'<div class="officer-progress-tab-title">{esc(officer)}</div>'
+                f'<div class="officer-progress-meta">{esc(meta)}</div>'
+                f'<div class="officer-progress-stats">'
+                f'<div class="officer-progress-stat"><span>Previous</span><strong>{fmt(previous)}</strong></div>'
+                f'<div class="officer-progress-stat"><span>Current</span><strong>{fmt(current)}</strong></div>'
+                f'<div class="officer-progress-stat"><span>Net Change</span><strong>{change:+,.0f}</strong></div>'
+                f'</div>'
+                f'<div class="officer-progress-status {status_class}">{status}</div>'
+                f'</div>'
+            )
 
         cards_html = "".join(cards) or f"<p>No {esc(label)} comparison available.</p>"
-        panels.append(f"""
-            <div class="lowest-progress-panel">
-                <h4>{esc(label)}</h4>
-                {cards_html}
-            </div>
-        """)
+        panels.append(
+            f'<div class="lowest-progress-panel">'
+            f'<h4>{esc(label)}</h4>'
+            f'{cards_html}'
+            f'</div>'
+        )
 
     st.markdown(
         f"""<div class="lowest-progress-grid">{''.join(panels)}</div>""",
