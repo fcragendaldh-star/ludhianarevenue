@@ -537,6 +537,89 @@ h3 {
     color: #546e7a !important;
 }
 
+/* Lowest progress officer tabs */
+.lowest-progress-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    align-items: start;
+}
+.lowest-progress-panel h4 {
+    color: #1d2733;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0 0 0.7rem;
+}
+.officer-progress-tab {
+    background: #fff;
+    border: 1px solid #ffcdd2;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 1px 6px rgba(183,28,28,0.11);
+}
+.officer-progress-tab-title {
+    background: #c62828;
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 800;
+    line-height: 1.25;
+    padding: 0.65rem 0.8rem;
+}
+.officer-progress-meta {
+    color: #6b7785;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0.55rem 0.8rem 0;
+}
+.officer-progress-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.45rem;
+    padding: 0.7rem 0.8rem 0.75rem;
+}
+.officer-progress-stat {
+    background: #fafbfc;
+    border: 1px solid #edf0f3;
+    border-radius: 6px;
+    padding: 0.5rem;
+    min-width: 0;
+}
+.officer-progress-stat span {
+    display: block;
+    color: #7b8794;
+    font-size: 0.66rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+.officer-progress-stat strong {
+    display: block;
+    color: #0a2240;
+    font-family: 'DM Mono', monospace;
+    font-size: 1rem;
+    margin-top: 0.1rem;
+}
+.officer-progress-status {
+    display: inline-block;
+    margin: 0 0.8rem 0.75rem;
+    border-radius: 999px;
+    padding: 0.28rem 0.65rem;
+    font-size: 0.72rem;
+    font-weight: 800;
+}
+.officer-progress-status.worsened {
+    background: #ffebee;
+    color: #b71c1c;
+}
+.officer-progress-status.no-progress {
+    background: #fff3e0;
+    color: #bf360c;
+}
+.officer-progress-status.low-progress {
+    background: #fffde7;
+    color: #6d4c00;
+}
+
 /* ── Charts ── */
 .js-plotly-plot {
     border-radius: 10px;
@@ -599,6 +682,8 @@ h3 {
     .dash-header h1 { font-size: 1.2rem !important; }
     [data-testid="stMetricValue"] { font-size: 1.4rem !important; }
     .stTabs [data-baseweb="tab"] { padding: 0.45rem 0.75rem; font-size: 0.8rem; }
+    .lowest-progress-grid { grid-template-columns: 1fr; }
+    .officer-progress-stats { grid-template-columns: 1fr; }
 }
 
 /* ── Pendency type mini-card ── */
@@ -956,54 +1041,69 @@ def render_svamitva_lowest_progress(df_latest: pd.DataFrame, df_prev: pd.DataFra
         return merged.sort_values(["Progress", current_col], ascending=[True, False]).head(5)
 
     st.markdown("### 🚦 Top 5 Lowest Progress")
-    c1, c2 = st.columns(2)
-    for idx, (label, metric_col) in enumerate(pending_metrics):
-        target_col = c1 if idx == 0 else c2
-        with target_col:
-            ranked = _rank_lowest_progress(metric_col)
-            if ranked.empty:
-                st.info(f"No {label} comparison available.")
-                continue
+    panels = []
+    for label, metric_col in pending_metrics:
+        ranked = _rank_lowest_progress(metric_col)
+        current_col = f"{metric_col} Current"
+        previous_col = f"{metric_col} Previous"
+        cards = []
 
-            current_col = f"{metric_col} Current"
-            previous_col = f"{metric_col} Previous"
-            display = ranked[["Review Unit", previous_col, current_col, "Progress", "Change"]].copy()
-            display = display.rename(columns={
-                previous_col: "Previous Pending",
-                current_col: "Current Pending",
-                "Progress": "Reduction",
-                "Change": "Net Change",
-            })
-            display["Status"] = np.select(
-                [display["Reduction"] < 0, display["Reduction"] == 0],
-                ["Worsened", "No progress"],
-                default="Low progress",
-            )
+        for _, row in ranked.iterrows():
+            previous = float(row.get(previous_col, 0) or 0)
+            current = float(row.get(current_col, 0) or 0)
+            progress = previous - current
+            change = current - previous
 
-            def _progress_style(value):
-                if value == "Worsened":
-                    return "background-color:#ffebee;color:#b71c1c;font-weight:700"
-                if value == "No progress":
-                    return "background-color:#fff8e1;color:#7a4f00;font-weight:700"
-                return "background-color:#fffde7;color:#5f4b00;font-weight:700"
+            if progress < 0:
+                status = "Worsened"
+                status_class = "worsened"
+            elif progress == 0:
+                status = "No progress"
+                status_class = "no-progress"
+            else:
+                status = "Low progress"
+                status_class = "low-progress"
 
-            st.markdown(f"#### {label}")
-            st.dataframe(
-                display.style.map(_progress_style, subset=["Status"]),
-                hide_index=True,
-                use_container_width=True,
-                height=250,
-                column_config={
-                    "Reduction": st.column_config.NumberColumn(
-                        "Reduction",
-                        help="Previous pending minus current pending. Lower or negative means weaker progress.",
-                    ),
-                    "Net Change": st.column_config.NumberColumn(
-                        "Net Change",
-                        help="Current pending minus previous pending. Positive means pendency increased.",
-                    ),
-                },
-            )
+            officer = row.get("Officer", "Unknown officer")
+            sub_division = row.get("Sub Division", "")
+            sub_tehsil = row.get(sub_tehsil_col, "")
+            meta_parts = [str(v).strip() for v in [sub_division, sub_tehsil] if str(v).strip()]
+            meta = " | ".join(meta_parts) if meta_parts else row.get("Review Unit", "")
+
+            cards.append(f"""
+                <div class="officer-progress-tab">
+                    <div class="officer-progress-tab-title">{esc(officer)}</div>
+                    <div class="officer-progress-meta">{esc(meta)}</div>
+                    <div class="officer-progress-stats">
+                        <div class="officer-progress-stat">
+                            <span>Previous</span>
+                            <strong>{fmt(previous)}</strong>
+                        </div>
+                        <div class="officer-progress-stat">
+                            <span>Current</span>
+                            <strong>{fmt(current)}</strong>
+                        </div>
+                        <div class="officer-progress-stat">
+                            <span>Net Change</span>
+                            <strong>{change:+,.0f}</strong>
+                        </div>
+                    </div>
+                    <div class="officer-progress-status {status_class}">{status}</div>
+                </div>
+            """)
+
+        cards_html = "".join(cards) or f"<p>No {esc(label)} comparison available.</p>"
+        panels.append(f"""
+            <div class="lowest-progress-panel">
+                <h4>{esc(label)}</h4>
+                {cards_html}
+            </div>
+        """)
+
+    st.markdown(
+        f"""<div class="lowest-progress-grid">{''.join(panels)}</div>""",
+        unsafe_allow_html=True,
+    )
 
 
 def render_svamitva_officer_pendency(df_latest: pd.DataFrame):

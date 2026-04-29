@@ -2,6 +2,7 @@
 __pycache__/
 *.pyc
 .env
+ludhiana-revenue-61706aa455ba.json
 data/
 *.egg-info/
 .DS_Store
