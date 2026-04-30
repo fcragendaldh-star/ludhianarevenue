@@ -28,7 +28,7 @@ st.set_page_config(
     page_title="Ludhiana Revenue Dashboard",
     layout="wide",
     initial_sidebar_state="collapsed",
-    menu_items={"About": "Ludhiana District Revenue Dashboard — DC Review Tool"},
+    menu_items={"About": "Ludhiana District Revenue Dashboard "},
 )
 
 # ─────────────────────────────── constants ──────────────────────────────────
@@ -1452,6 +1452,12 @@ def render_agenda_tab(agenda: dict):
 
         st.markdown("## Full Data Table")
         render_summary_table(df_latest, agenda)
+
+        st.markdown("## Village-wise Portal")
+        st.link_button(
+            "🔗 For Detailed Village wise List - Click Here",
+            "https://script.google.com/macros/s/AKfycbz_ElOe2y3f7-xS2p5fu2TPo5Nd32T2oV5Jo0_T10F_eSEf9pGHKHXaICo8n_TZK7rl/exec"
+        )
         return
 
     # ── KPI row ──
