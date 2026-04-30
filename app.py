@@ -1438,6 +1438,12 @@ def render_agenda_tab(agenda: dict):
         st.caption(f"📄 Showing latest file snapshot: **{src}** (no YYYYMMDD date found in filename)")
 
     if agenda["key"] == "svamitva":
+        st.markdown("## Village-wise Portal")
+        st.link_button(
+            "🔗 For Detailed Village wise List - Click Here",
+            "https://script.google.com/macros/s/AKfycbz_ElOe2y3f7-xS2p5fu2TPo5Nd32T2oV5Jo0_T10F_eSEf9pGHKHXaICo8n_TZK7rl/exec"
+        )
+        
         st.markdown("## Key Metrics")
         render_svamitva_kpis(df_latest, df_prev)
 
@@ -1452,12 +1458,6 @@ def render_agenda_tab(agenda: dict):
 
         st.markdown("## Full Data Table")
         render_summary_table(df_latest, agenda)
-
-        st.markdown("## Village-wise Portal")
-        st.link_button(
-            "🔗 For Detailed Village wise List - Click Here",
-            "https://script.google.com/macros/s/AKfycbz_ElOe2y3f7-xS2p5fu2TPo5Nd32T2oV5Jo0_T10F_eSEf9pGHKHXaICo8n_TZK7rl/exec"
-        )
         return
 
     # ── KPI row ──
