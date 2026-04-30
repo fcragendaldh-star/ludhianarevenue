@@ -88,6 +88,7 @@ AGENDAS = [
         "icon": "📐",
         "description": "Status of Tatima (field measurement) incorporation in revenue records",
         "folder_secret": "AGENDA_TATIMA_FOLDER_ID",
+        "folder_id": "1HlBVtjgGGXbv_HGcrx85YqReQH-yU7d3",
         "columns": [
             "Total No of Villages",
             "No. of Villages where the work is in progress",
