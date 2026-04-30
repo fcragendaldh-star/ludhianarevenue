@@ -1499,7 +1499,6 @@ def main():
         <div class="dash-header">
             <div>
                 <h1>🏛️ Ludhiana District Revenue Dashboard</h1>
-                <p class="subtitle">DC Review Tool — Mutations · E-seva · Svamitva · Tatima · Cadastral · Jamabandi</p>
             </div>
             <div class="header-badge">🕐 {today_str}</div>
         </div>
