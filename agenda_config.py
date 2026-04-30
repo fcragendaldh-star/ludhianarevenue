@@ -27,6 +27,7 @@ AGENDAS = [
         "icon": "⚖️",
         "description": "Daily pendency across Uncontested Mutations and E-seva records",
         "folder_secret": "AGENDA_FCR_FOLDER_ID",
+        "folder_id": "1DyJSr5zzetOI7cQF6XN533R_rFp7o1qX",
         "folder_name": "uncontesed mutations",
         "columns": [
             "Uncontested Pendency",
