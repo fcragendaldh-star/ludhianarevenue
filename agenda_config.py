@@ -119,6 +119,7 @@ AGENDAS = [
         "icon": "🗺️",
         "description": "Progress of cadastral (field map) digitisation across tehsils",
         "folder_secret": "AGENDA_CADASTRAL_FOLDER_ID",
+        "folder_id": "1u7nAPKRWZxiUv79AiqP8rMuwQG4D9bGX",
         "columns": [
             "No. of villages mussavis validated by patwari         (1st level)",
             "No. of villages Final validated at  CRO level",
@@ -152,6 +153,7 @@ AGENDAS = [
         "icon": "📋",
         "description": "Live Jamabandi (land record) status — approvals, attestations & pendency",
         "folder_secret": "AGENDA_JAMABANDI_FOLDER_ID",
+        "folder_id": "1OooaZpAzD7ga6x4rUJWkH5rttiOacX5J",
         "columns": [
             "Total Computerised Jamabandis to be prepared",
             "Total no of Computerised Jamabandis prepared Till Date",
