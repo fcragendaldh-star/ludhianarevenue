@@ -1198,6 +1198,267 @@ def render_svamitva_officer_pendency(df_latest: pd.DataFrame):
             st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
 
+def fcr_metric_groups(agenda: dict) -> dict[str, list[str]]:
+    cols = configured_cols(agenda, "columns")
+    return {
+        "Mutation pendency": [c for c in ["Uncontested Pendency"] if c in cols],
+        "Citizen service pendency": [
+            c for c in ["Income Certificate", "Copying Service", "Inspection Records"] if c in cols
+        ],
+        "Overdue record pendency": [
+            c for c in ["Overdue Mortgage", "Overdue Court Orders", "Overdue Fardbadars"] if c in cols
+        ],
+    }
+
+
+def fcr_group_total(df: pd.DataFrame, cols: list[str]) -> float:
+    usable = [c for c in cols if c in df.columns]
+    if df.empty or not usable:
+        return 0.0
+    return float(df[usable].sum().sum())
+
+
+def render_fcr_kpis(df_latest: pd.DataFrame, df_prev: pd.DataFrame, agenda: dict):
+    groups = fcr_metric_groups(agenda)
+    has_prev = not df_prev.empty
+    metric_defs = [
+        ("Total cases to clear", configured_cols(agenda, "total_columns"), "lower"),
+        ("Mutation pendency", groups["Mutation pendency"], "lower"),
+        ("Citizen service pendency", groups["Citizen service pendency"], "lower"),
+        ("Overdue record pendency", groups["Overdue record pendency"], "lower"),
+    ]
+
+    cols = st.columns(4)
+    for idx, (label, metric_cols, direction) in enumerate(metric_defs):
+        current = fcr_group_total(df_latest, metric_cols)
+        previous = fcr_group_total(df_prev, metric_cols) if has_prev else None
+        with cols[idx]:
+            st.metric(
+                label,
+                fmt(current),
+                delta=delta_label(current, previous),
+                delta_color="inverse" if direction == "lower" else "normal",
+            )
+
+    st.caption(
+        "Total cases to clear is the sum of all pending mutation, citizen service, and overdue record columns."
+    )
+
+
+def render_fcr_charts(df_latest: pd.DataFrame, agenda: dict):
+    metric_cols = available_metric_cols(df_latest, agenda, "columns")
+    if df_latest.empty or not metric_cols:
+        return
+
+    group_col = usable_group_col(df_latest, agenda)
+    col_mix, col_sub = st.columns(2)
+
+    with col_mix:
+        st.markdown("### Pendency mix")
+        totals = (
+            df_latest[metric_cols]
+            .sum()
+            .reset_index()
+            .rename(columns={"index": "Pendency Type", 0: "Cases"})
+        )
+        totals = totals[totals["Cases"] > 0].sort_values("Cases", ascending=True)
+        if totals.empty:
+            st.info("No pendency found in the latest snapshot.")
+        else:
+            fig = px.bar(
+                totals,
+                x="Cases",
+                y="Pendency Type",
+                orientation="h",
+                text="Cases",
+                color="Cases",
+                color_continuous_scale=[[0, "#dbeafe"], [1, agenda["color"]]],
+            )
+            fig.update_traces(texttemplate="%{text:,}", textposition="outside", cliponaxis=False)
+            fig.update_layout(
+                height=330, margin=dict(l=20, r=45, t=10, b=35),
+                plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
+                xaxis=dict(title="Pending cases", gridcolor="#e8ecf0"),
+                yaxis=dict(title=None),
+                showlegend=False, coloraxis_showscale=False,
+            )
+            st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+
+    with col_sub:
+        st.markdown(f"### {group_col} clearance load")
+        grouped = df_latest.groupby(group_col, as_index=False)[metric_cols].sum()
+        grouped["Total"] = grouped[metric_cols].sum(axis=1)
+        grouped = grouped.sort_values("Total", ascending=False)
+        if grouped.empty:
+            st.info("No subdivision load available.")
+        else:
+            long_df = grouped.melt(group_col, value_vars=metric_cols, var_name="Pendency Type", value_name="Cases")
+            fig = px.bar(
+                long_df,
+                x=group_col,
+                y="Cases",
+                color="Pendency Type",
+                text="Cases",
+            )
+            fig.update_traces(texttemplate="%{text:,}", textposition="inside")
+            fig.update_layout(
+                height=330, margin=dict(l=40, r=20, t=10, b=95),
+                plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
+                xaxis=dict(title=None, tickangle=35, categoryorder="array", categoryarray=grouped[group_col].tolist()),
+                yaxis=dict(title="Pending cases", gridcolor="#e8ecf0", rangemode="tozero"),
+                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0),
+            )
+            st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+
+
+def render_fcr_top_officers(df_latest: pd.DataFrame, df_prev: pd.DataFrame, agenda: dict):
+    metric_cols = available_metric_cols(df_latest, agenda, "columns")
+    id_cols = [c for c in ["Sub Division", "Tehsil/Sub Tehsil", "Officer"] if c in df_latest.columns]
+    if df_latest.empty or not metric_cols or "Officer" not in id_cols:
+        return
+
+    latest = df_latest.groupby(id_cols, as_index=False)[metric_cols].sum()
+    latest["Current pendency"] = latest[metric_cols].sum(axis=1)
+    latest = latest[latest["Current pendency"] > 0].copy()
+    if latest.empty:
+        st.info("No officer-wise pendency found in the latest snapshot.")
+        return
+
+    latest["Main pendency"] = latest[metric_cols].idxmax(axis=1)
+    latest["Review Unit"] = latest.apply(
+        lambda row: (
+            f"{str(row.get('Officer', '')).strip()} - "
+            f"{str(row.get('Tehsil/Sub Tehsil', '')).strip()}"
+        ),
+        axis=1,
+    )
+
+    if not df_prev.empty:
+        prev = df_prev.groupby(id_cols, as_index=False)[metric_cols].sum()
+        prev["Previous pendency"] = prev[metric_cols].sum(axis=1)
+        latest = latest.merge(prev[id_cols + ["Previous pendency"]], on=id_cols, how="left")
+        latest["Previous pendency"] = latest["Previous pendency"].fillna(0)
+        latest["Change from last"] = latest["Current pendency"] - latest["Previous pendency"]
+        latest["Change %"] = latest.apply(
+            lambda row: pct_change(row["Current pendency"], row["Previous pendency"]),
+            axis=1,
+        )
+    else:
+        latest["Previous pendency"] = np.nan
+        latest["Change from last"] = np.nan
+        latest["Change %"] = np.nan
+
+    top_officers = latest.sort_values("Current pendency", ascending=False).head(10).copy()
+
+    st.markdown("### Top 10 Officers with Highest Pendency")
+    if df_prev.empty:
+        st.caption("No previous FCR snapshot is available, so change from last cannot be shown yet.")
+    else:
+        st.caption("Change from last compares the same subdivision, tehsil, and officer row with the previous snapshot.")
+
+    chart_df = top_officers.sort_values("Current pendency", ascending=True)
+    hover_data = {"Main pendency": True, "Review Unit": False}
+    if not df_prev.empty:
+        hover_data.update({
+            "Previous pendency": ":,.0f",
+            "Change from last": ":,.0f",
+            "Change %": ":.1f",
+        })
+
+    fig = px.bar(
+        chart_df,
+        x="Current pendency",
+        y="Review Unit",
+        orientation="h",
+        text="Current pendency",
+        color="Change from last" if not df_prev.empty else "Current pendency",
+        color_continuous_scale=(
+            [[0, "#2e7d32"], [0.5, "#f9a825"], [1, "#c62828"]]
+            if not df_prev.empty else [[0, "#fee2e2"], [0.5, "#ef4444"], [1, "#991b1b"]]
+        ),
+        color_continuous_midpoint=0 if not df_prev.empty else None,
+        hover_data=hover_data,
+    )
+    fig.update_traces(texttemplate="%{text:,}", textposition="outside", cliponaxis=False)
+    fig.update_layout(
+        height=max(420, 34 * len(chart_df) + 120), margin=dict(l=20, r=55, t=10, b=35),
+        plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
+        xaxis=dict(title="Pending cases", gridcolor="#e8ecf0", rangemode="tozero"),
+        yaxis=dict(title=None, automargin=True, tickfont=dict(family="Arial Black", size=12, color="#0a2240")),
+        coloraxis_colorbar=dict(title="Change" if not df_prev.empty else "Cases"),
+    )
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+
+    display = top_officers[[
+        "Review Unit",
+        "Current pendency",
+        "Previous pendency",
+        "Change from last",
+        "Change %",
+        "Main pendency",
+    ]].copy()
+    display.insert(0, "Rank", range(1, len(display) + 1))
+    for col in ["Current pendency", "Previous pendency", "Change from last"]:
+        display[col] = display[col].apply(lambda value: "-" if pd.isna(value) else fmt(value))
+    display["Change %"] = display["Change %"].apply(lambda value: "-" if pd.isna(value) else f"{value:+.1f}%")
+
+    st.dataframe(display, hide_index=True, use_container_width=True, height=360)
+
+
+def render_fcr_priority_table(df_latest: pd.DataFrame, agenda: dict):
+    metric_cols = available_metric_cols(df_latest, agenda, "columns")
+    id_cols = [c for c in ["Sub Division", "Tehsil/Sub Tehsil", "Officer"] if c in df_latest.columns]
+    if df_latest.empty or not metric_cols or not id_cols:
+        return
+
+    review = df_latest[id_cols + metric_cols].copy()
+    review["Total cases to clear"] = review[metric_cols].sum(axis=1)
+    review = review[review["Total cases to clear"] > 0].copy()
+    if review.empty:
+        st.info("No pending rows need DC review in the latest snapshot.")
+        return
+
+    review["Main pendency"] = review[metric_cols].idxmax(axis=1)
+    review["Main pendency cases"] = review.apply(lambda row: row[row["Main pendency"]], axis=1)
+    review["Share of current view"] = (
+        review["Total cases to clear"] / float(review["Total cases to clear"].sum() or 1) * 100
+    ).round(1)
+
+    display_cols = [
+        *id_cols,
+        "Total cases to clear",
+        "Main pendency",
+        "Main pendency cases",
+        "Share of current view",
+        *metric_cols,
+    ]
+    final = review[display_cols].sort_values(
+        ["Total cases to clear", "Main pendency cases"], ascending=[False, False]
+    ).reset_index(drop=True)
+
+    disp = final.copy()
+    number_cols = ["Total cases to clear", "Main pendency cases", *metric_cols]
+    for col in number_cols:
+        disp[col] = disp[col].apply(fmt)
+    disp["Share of current view"] = disp["Share of current view"].apply(lambda x: f"{x:.1f}%")
+
+    rename = {
+        "Tehsil/Sub Tehsil": "Tehsil",
+        "Uncontested Pendency": "Mutation",
+        "Income Certificate": "Income Cert",
+        "Copying Service": "Copying",
+        "Inspection Records": "Inspection",
+        "Overdue Mortgage": "Mortgage",
+        "Overdue Court Orders": "Court Orders",
+        "Overdue Fardbadars": "Fardbadars",
+        "Share of current view": "View Share",
+    }
+
+    st.markdown("### DC review priority list")
+    st.caption("Rows are ranked by total cases to clear; Main pendency shows the biggest bucket for that officer/unit.")
+    st.dataframe(disp.rename(columns=rename), hide_index=True, use_container_width=True, height=430)
+
+
 def render_top_officers(df_latest: pd.DataFrame, df_all: pd.DataFrame, agenda: dict):
     if "Officer" not in df_latest.columns or useful_nunique(df_latest, "Officer") == 0:
         return
@@ -1461,6 +1722,23 @@ def render_agenda_tab(agenda: dict):
         return
 
     # ── KPI row ──
+    if agenda["key"] == "fcr":
+        st.markdown("## Key Metrics")
+        render_fcr_kpis(df_latest, df_prev, agenda)
+
+        st.markdown("## Officer-wise Pendency")
+        render_fcr_top_officers(df_latest, df_prev, agenda)
+
+        st.markdown("## Pendency Analysis")
+        render_fcr_charts(df_latest, agenda)
+
+        st.markdown("## Review Priorities")
+        render_fcr_priority_table(df_latest, agenda)
+
+        st.markdown("## Full Data Table")
+        render_summary_table(df_latest, agenda)
+        return
+
     st.markdown("## Key Metrics")
     render_kpi_row(df_latest, df_prev, agenda)
 
