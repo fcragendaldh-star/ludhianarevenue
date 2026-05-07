@@ -1,4 +1,4 @@
-# app.py  — Ludhiana District Revenue Dashboard
+# app.py  â€” Ludhiana District Revenue Dashboard
 # Multi-agenda monitoring dashboard for DC Review
 # Developed by: Shivam Gulati, Land Revenue Fellow
 
@@ -19,11 +19,11 @@ from zoneinfo import ZoneInfo
 
 from agenda_config import AGENDAS, AGENDA_MAP
 
-# ─────────────────────────────── logging ────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ logging â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# ─────────────────────────────── page config ────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ page config â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 st.set_page_config(
     page_title="Ludhiana Revenue Dashboard",
     layout="wide",
@@ -31,13 +31,13 @@ st.set_page_config(
     menu_items={"About": "Ludhiana District Revenue Dashboard "},
 )
 
-# ─────────────────────────────── constants ──────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 DATA_FOLDER_BASE = Path("data")
 FILENAME_DATE_RE = re.compile(r"(\d{8})")   # YYYYMMDD
 DATE_FORMAT = "%Y%m%d"
 APP_TIMEZONE = ZoneInfo("Asia/Kolkata")
 
-# ─────────────────────────────── Google Drive ───────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Google Drive â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 GOOGLE_DRIVE_AVAILABLE = False
 try:
     from google_drive_storage import GoogleDriveStorage
@@ -105,7 +105,7 @@ def drive_status_message(agenda: dict) -> str:
     )
 
 
-# ─────────────────────────────── helpers ────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def fmt(num) -> str:
     try:
@@ -125,7 +125,7 @@ def pct_change(current, previous) -> float:
 
 
 def trend_icon(change: float) -> str:
-    return "📈" if change > 0 else ("📉" if change < 0 else "➡️")
+    return "ðŸ“ˆ" if change > 0 else ("ðŸ“‰" if change < 0 else "âž¡ï¸")
 
 
 def validate_df(df: pd.DataFrame, group_cols: list) -> tuple[bool, str]:
@@ -220,7 +220,7 @@ def traffic_signal_color(value: float, max_value: float) -> str:
     return "#43a047"
 
 
-# ─────────────────────────────── data loader ────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ data loader â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def _load_agenda_files(agenda: dict, max_files: int = 10) -> pd.DataFrame:
     """
@@ -241,7 +241,7 @@ def _load_agenda_files(agenda: dict, max_files: int = 10) -> pd.DataFrame:
         clean_col_name(agenda.get("target_col", "Total")),
     ]))
 
-    # ── Google Drive ──
+    # â”€â”€ Google Drive â”€â”€
     use_drive = False
     storage = None
     if GOOGLE_DRIVE_AVAILABLE:
@@ -289,7 +289,7 @@ def _load_agenda_files(agenda: dict, max_files: int = 10) -> pd.DataFrame:
                 logger.error(f"[{agenda_key}] {fname}: {e}")
                 failed.append((fname, str(e)))
 
-    # ── Local fallback ──
+    # â”€â”€ Local fallback â”€â”€
     if not rows:
         folder_name = agenda.get("folder_name", agenda_key)
         local_dir = DATA_FOLDER_BASE / folder_name
@@ -400,52 +400,64 @@ def load_agenda(agenda_key: str, cache_ver: str = "v1") -> pd.DataFrame:
     return _load_agenda_files(AGENDA_MAP[agenda_key])
 
 
-# ─────────────────────────────── CSS ────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ CSS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def inject_css():
     st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 *, *::before, *::after { box-sizing: border-box; }
 
 html, body, .stApp {
-    font-family: 'DM Sans', sans-serif;
-    background: #f4f6f9;
+    font-family: 'Inter', sans-serif;
+    background: #f0f4f8;
+}
+
+.main .block-container {
+    max-width: 1420px;
+    padding: 1.6rem 2rem 2.8rem;
 }
 
 /* ── Header ── */
 .dash-header {
-    background: linear-gradient(135deg, #0a2240 0%, #1a4b8c 60%, #1565c0 100%);
-    padding: 1.4rem 2rem 1.2rem;
-    border-radius: 12px;
-    margin-bottom: 1.5rem;
+    background: #0B2545;
+    min-height: 96px;
+    padding: 1.25rem 1.7rem;
+    border-radius: 10px;
+    margin: 0 0 0.9rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 4px 20px rgba(10,34,64,0.25);
+    border: 1px solid rgba(255,255,255,0.08);
+}
+.dash-header-left { display: flex; align-items: center; gap: 12px; }
+.dash-seal {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(255,255,255,0.18);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.7rem; flex-shrink: 0;
 }
 .dash-header h1 {
     color: #fff !important;
-    font-size: 1.6rem !important;
+    font-size: 1.65rem !important;
     font-weight: 700 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
-    letter-spacing: 0.3px;
+    margin: 0 !important; padding: 0 !important;
+    border: none !important; line-height: 1.2;
 }
 .dash-header .subtitle {
-    color: rgba(255,255,255,0.72);
-    font-size: 0.82rem;
-    margin-top: 0.2rem;
+    color: rgba(255,255,255,0.58);
+    font-size: 0.86rem;
+    margin-top: 5px;
     font-weight: 400;
 }
 .header-badge {
-    background: rgba(255,255,255,0.15);
-    border: 1px solid rgba(255,255,255,0.3);
-    border-radius: 8px;
-    padding: 0.4rem 0.9rem;
-    color: #fff;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 7px;
+    padding: 0.48rem 1rem;
+    color: rgba(255,255,255,0.78);
     font-size: 0.8rem;
     font-weight: 500;
     white-space: nowrap;
@@ -454,23 +466,24 @@ html, body, .stApp {
 /* ── Tab bar ── */
 .stTabs [data-baseweb="tab-list"] {
     background: #fff;
-    border-radius: 10px;
-    padding: 0.35rem;
-    gap: 0.25rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-    margin-bottom: 1.2rem;
+    border: 0.5px solid #dde4ec;
+    border-radius: 8px;
+    padding: 4px 5px;
+    gap: 3px;
+    margin: 0.3rem 0 1rem;
 }
 .stTabs [data-baseweb="tab"] {
-    border-radius: 8px;
-    padding: 0.55rem 1.1rem;
-    font-size: 0.88rem;
+    border-radius: 6px;
+    padding: 0.48rem 0.95rem;
+    font-size: 0.8rem;
     font-weight: 500;
-    color: #546e7a;
-    transition: all 0.2s ease;
+    color: #64748b;
+    transition: background 0.15s;
     border: none !important;
+    min-height: 38px;
 }
 .stTabs [aria-selected="true"] {
-    background: #0a2240 !important;
+    background: #0B2545 !important;
     color: #fff !important;
     font-weight: 600 !important;
 }
@@ -480,204 +493,205 @@ html, body, .stApp {
 /* ── Metric cards ── */
 [data-testid="stMetricContainer"] {
     background: #fff;
-    border-radius: 10px;
-    padding: 1rem 1.2rem !important;
-    box-shadow: 0 1px 6px rgba(0,0,0,0.07);
-    border: 1px solid #e8ecf0;
+    border-radius: 8px;
+    padding: 1rem 1.1rem 0.9rem !important;
+    border: 0.5px solid #dde4ec;
+    border-top: 3px solid #cbd5e1;
 }
 [data-testid="stMetricValue"] {
-    font-size: 1.9rem !important;
+    font-size: 1.75rem !important;
     font-weight: 700 !important;
-    color: #0a2240 !important;
-    font-family: 'DM Mono', monospace !important;
+    color: #0B2545 !important;
+    font-family: 'JetBrains Mono', monospace !important;
+    line-height: 1.1 !important;
 }
 [data-testid="stMetricLabel"] {
-    font-size: 0.8rem !important;
-    color: #78909c !important;
-    font-weight: 500 !important;
+    font-size: 0.67rem !important;
+    color: #64748b !important;
+    font-weight: 600 !important;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
-[data-testid="stMetricDelta"] { font-size: 0.85rem !important; }
+[data-testid="stMetricDelta"] { font-size: 0.75rem !important; }
 
 /* ── Agenda header card ── */
 .agenda-header {
     background: #fff;
-    border-radius: 10px;
-    padding: 1rem 1.4rem;
-    margin-bottom: 1.2rem;
+    border-radius: 8px;
+    padding: 0.8rem 1.1rem;
+    margin: 0 0 0.9rem;
     display: flex;
     align-items: center;
-    gap: 1rem;
-    border-left: 5px solid var(--agenda-color, #1565c0);
-    box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+    gap: 10px;
+    border: 0.5px solid #dde4ec;
+    border-left: 3px solid var(--agenda-color, #1565c0);
 }
-.agenda-icon { font-size: 2rem; line-height: 1; }
-.agenda-title { font-size: 1.15rem; font-weight: 700; color: #0a2240; margin: 0; }
-.agenda-desc { font-size: 0.82rem; color: #78909c; margin: 0.15rem 0 0; }
+.agenda-icon {
+    width: 38px; height: 38px;
+    display: grid; place-items: center;
+    border-radius: 7px;
+    background: #f1f5fb;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+}
+.agenda-title { font-size: 0.92rem; font-weight: 700; color: #0B2545; margin: 0; }
+.agenda-desc { font-size: 0.75rem; color: #64748b; margin: 2px 0 0; }
+.agenda-date-badge {
+    margin-left: auto;
+    background: #f1f5fb;
+    border: 0.5px solid #bfcfe0;
+    border-radius: 5px;
+    padding: 3px 10px;
+    font-size: 0.7rem;
+    color: #1565c0;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
 
 /* ── Section headers ── */
 h2 {
-    color: #0a2240 !important;
-    font-size: 1rem !important;
+    color: #64748b !important;
+    font-size: 0.67rem !important;
     font-weight: 700 !important;
     text-transform: uppercase;
-    letter-spacing: 0.8px;
-    margin: 1.4rem 0 0.8rem !important;
-    padding-bottom: 0.4rem !important;
-    border-bottom: 2px solid #e3e8ef !important;
+    letter-spacing: 0.6px;
+    margin: 1rem 0 0.6rem !important;
+    padding-bottom: 0.3rem !important;
+    border-bottom: 0.5px solid #dde4ec !important;
 }
 h3 {
-    color: #1a3a5c !important;
-    font-size: 0.95rem !important;
+    color: #0B2545 !important;
+    font-size: 0.88rem !important;
     font-weight: 600 !important;
-    margin: 1rem 0 0.5rem !important;
+    margin: 0.9rem 0 0.45rem !important;
 }
 
 /* ── Data table ── */
-.stDataFrame { border-radius: 8px; overflow: hidden; }
+.stDataFrame { border-radius: 7px; overflow: hidden; border: 0.5px solid #dde4ec !important; }
 .stDataFrame thead th {
-    background: #f0f4f8 !important;
-    font-size: 0.78rem !important;
+    background: #f8fafc !important;
+    font-size: 0.72rem !important;
     text-transform: uppercase;
     letter-spacing: 0.4px;
-    color: #546e7a !important;
+    color: #64748b !important;
+    border-bottom: 0.5px solid #dde4ec !important;
 }
+.stDataFrame tbody tr:hover td { background: #f8fafc !important; }
 
-/* Lowest progress officer tabs */
-.lowest-progress-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.75rem;
-    align-items: start;
+/* ── Pendency type mini-card ── */
+.ptype-card {
+    border-radius: 7px;
+    padding: 0.65rem 0.85rem;
+    margin-bottom: 0.5rem;
+    border: 0.5px solid rgba(0,0,0,0.07);
 }
-.lowest-progress-panel h4 {
-    color: #1d2733;
-    font-size: 1.05rem;
-    font-weight: 700;
-    margin: 0 0 0.55rem;
+.ptype-name { font-size: 0.68rem; font-weight: 600; margin: 0 0 0.2rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.3px; }
+.ptype-val  { font-size: 1.25rem; font-weight: 700; margin: 0; font-family: 'JetBrains Mono', monospace; }
+.ptype-pct  { font-size: 0.67rem; margin: 2px 0 0; opacity: 0.75; }
+
+/* ── No-data placeholder ── */
+.no-data {
+    background: #fff;
+    border-radius: 8px;
+    padding: 3rem 2rem;
+    text-align: center;
+    color: #94a3b8;
+    border: 1px dashed #dde4ec;
 }
+.no-data h3 { color: #94a3b8 !important; }
+
+/* ── Lowest progress officer cards ── */
 .officer-progress-tab {
     background: #fff;
-    border: 1px solid #ffcdd2;
-    border-radius: 8px;
+    border: 0.5px solid #fecaca;
+    border-radius: 7px;
     margin-bottom: 0.5rem;
     overflow: hidden;
-    box-shadow: 0 1px 6px rgba(183,28,28,0.11);
 }
 .officer-progress-tab-title {
-    background: #c62828;
+    background: #991b1b;
     color: #fff;
-    font-size: 0.86rem;
-    font-weight: 800;
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 0.4rem 0.6rem;
     line-height: 1.25;
-    padding: 0.45rem 0.65rem;
 }
-.officer-progress-meta {
-    color: #6b7785;
-    font-size: 0.72rem;
-    font-weight: 600;
-    padding: 0.4rem 0.65rem 0;
-}
+.officer-progress-meta { color: #64748b; font-size: 0.7rem; font-weight: 600; padding: 0.35rem 0.6rem 0; }
 .officer-progress-stats {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.35rem;
-    padding: 0.45rem 0.65rem 0.5rem;
+    gap: 0.3rem;
+    padding: 0.4rem 0.6rem 0.45rem;
 }
 .officer-progress-stat {
-    background: #fafbfc;
-    border: 1px solid #edf0f3;
-    border-radius: 6px;
-    padding: 0.35rem 0.45rem;
-    min-width: 0;
+    background: #f8fafc;
+    border: 0.5px solid #e8edf3;
+    border-radius: 5px;
+    padding: 0.3rem 0.4rem;
 }
-.officer-progress-stat span {
-    display: block;
-    color: #7b8794;
-    font-size: 0.58rem;
-    font-weight: 700;
-    text-transform: uppercase;
-}
-.officer-progress-stat strong {
-    display: block;
-    color: #0a2240;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.88rem;
-    margin-top: 0.1rem;
-}
+.officer-progress-stat span { display: block; color: #64748b; font-size: 0.58rem; font-weight: 700; text-transform: uppercase; }
+.officer-progress-stat strong { display: block; color: #0B2545; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; margin-top: 1px; }
 .officer-progress-status {
     display: inline-block;
-    margin: 0 0.65rem 0.55rem;
+    margin: 0 0.6rem 0.5rem;
     border-radius: 999px;
-    padding: 0.22rem 0.55rem;
-    font-size: 0.65rem;
-    font-weight: 800;
+    padding: 2px 9px;
+    font-size: 0.63rem;
+    font-weight: 700;
 }
-.officer-progress-status.worsened {
-    background: #ffebee;
-    color: #b71c1c;
-}
-.officer-progress-status.no-progress {
-    background: #fff3e0;
-    color: #bf360c;
-}
-.officer-progress-status.low-progress {
-    background: #fffde7;
-    color: #6d4c00;
-}
+.officer-progress-status.worsened    { background: #fee2e2; color: #991b1b; }
+.officer-progress-status.no-progress { background: #ffedd5; color: #9a3412; }
+.officer-progress-status.low-progress{ background: #fefce8; color: #713f12; }
+
+.lowest-progress-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.65rem; align-items: start; }
+.lowest-progress-panel h4 { color: #0B2545; font-size: 0.9rem; font-weight: 700; margin: 0 0 0.5rem; }
 
 /* ── Charts ── */
 .js-plotly-plot {
-    border-radius: 10px;
+    border-radius: 8px;
     background: #fff;
-    box-shadow: 0 1px 6px rgba(0,0,0,0.06);
-    padding: 0.5rem;
+    border: 0.5px solid #dde4ec;
+    padding: 0.4rem;
 }
 
-/* ── Alert / info boxes ── */
-.stAlert { border-radius: 8px; }
-.stSuccess { border-left: 4px solid #2e7d32; }
-.stWarning { border-left: 4px solid #e65100; }
-.stError   { border-left: 4px solid #c62828; }
-.stInfo    { border-left: 4px solid #0277bd; }
+/* ── Alert boxes ── */
+.stAlert { border-radius: 7px; font-size: 0.82rem; }
 
 /* ── Buttons ── */
 .stButton > button {
-    background: #0a2240 !important;
+    background: #0B2545 !important;
     color: #fff !important;
     border: none !important;
-    border-radius: 8px !important;
+    border-radius: 7px !important;
     font-weight: 600 !important;
-    padding: 0.5rem 1.2rem !important;
-    font-size: 0.88rem !important;
-    transition: all 0.2s !important;
+    padding: 0.6rem 1rem !important;
+    font-size: 0.82rem !important;
+    transition: background 0.15s !important;
+    width: 100%;
+    min-height: 42px;
 }
-.stButton > button:hover {
-    background: #1a4b8c !important;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(10,34,64,0.25) !important;
-}
+.stButton > button:hover { background: #1e3a5f !important; }
 
 /* ── Download button ── */
 .stDownloadButton > button {
-    background: #f0f4f8 !important;
-    color: #0a2240 !important;
-    border: 1px solid #c5d0dc !important;
-    border-radius: 8px !important;
+    background: #f8fafc !important;
+    color: #0B2545 !important;
+    border: 0.5px solid #bfcfe0 !important;
+    border-radius: 7px !important;
     font-weight: 600 !important;
+    font-size: 0.82rem !important;
 }
 
 /* ── Footer ── */
 .dash-footer {
     margin-top: 2rem;
-    padding-top: 1rem;
-    border-top: 1px solid #dde3ea;
+    padding-top: 0.9rem;
+    border-top: 0.5px solid #dde4ec;
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    font-size: 0.78rem;
-    color: #90a4ae;
+    font-size: 0.7rem;
+    color: #94a3b8;
 }
 
 /* ── Sidebar ── */
@@ -685,43 +699,26 @@ h3 {
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
+    .main .block-container { padding: 1rem 1rem 2rem; }
     .dash-header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
     .dash-header h1 { font-size: 1.2rem !important; }
-    [data-testid="stMetricValue"] { font-size: 1.4rem !important; }
-    .stTabs [data-baseweb="tab"] { padding: 0.45rem 0.75rem; font-size: 0.8rem; }
+    [data-testid="stMetricValue"] { font-size: 1.35rem !important; }
+    .stTabs [data-baseweb="tab"] { padding: 0.4rem 0.65rem; font-size: 0.75rem; }
     .lowest-progress-grid { grid-template-columns: 1fr; }
     .officer-progress-stats { grid-template-columns: 1fr; }
 }
-
-/* ── Pendency type mini-card ── */
-.ptype-card {
-    border-radius: 8px;
-    padding: 0.7rem 0.9rem;
-    margin-bottom: 0.5rem;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-}
-.ptype-name { font-size: 0.75rem; font-weight: 600; margin: 0 0 0.25rem; opacity: 0.85; }
-.ptype-val  { font-size: 1.3rem; font-weight: 700; margin: 0; font-family: 'DM Mono', monospace; }
-.ptype-pct  { font-size: 0.72rem; margin: 0.1rem 0 0; opacity: 0.8; }
-
-/* ── No-data placeholder ── */
-.no-data {
-    background: #fff;
-    border-radius: 10px;
-    padding: 3rem 2rem;
-    text-align: center;
-    color: #90a4ae;
-    border: 2px dashed #dde3ea;
-}
-.no-data h3 { color: #78909c !important; }
 </style>
 """, unsafe_allow_html=True)
 
 
-# ─────────────────────────────── components ─────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ components â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-def render_agenda_header(agenda: dict):
+def render_agenda_header(agenda: dict, date_label: str = ""):
     color = agenda["color"]
+    date_html = (
+        f'<div class="agenda-date-badge">📅 {esc(date_label)}</div>'
+        if date_label else ""
+    )
     st.markdown(f"""
     <div class="agenda-header" style="--agenda-color:{color};">
         <div class="agenda-icon">{agenda["icon"]}</div>
@@ -729,6 +726,7 @@ def render_agenda_header(agenda: dict):
             <p class="agenda-title">{agenda["label"]}</p>
             <p class="agenda-desc">{agenda["description"]}</p>
         </div>
+        {date_html}
     </div>
     """, unsafe_allow_html=True)
 
@@ -770,7 +768,7 @@ def render_kpi_row(df_latest: pd.DataFrame, df_prev: pd.DataFrame, agenda: dict)
     c1, c2, c3, c4 = st.columns(4)
     with c1:
         delta = f"{chg:+.1f}%" if metric_prev else None
-        # For lower_better pendency: increase (positive %) is bad → delta_color="inverse"
+        # For lower_better pendency: increase (positive %) is bad â†’ delta_color="inverse"
         st.metric("Total" if metric_col == "Total" else metric_col,
                   fmt(metric_now), delta=delta,
                   delta_color="inverse" if lower_better else "normal")
@@ -780,9 +778,9 @@ def render_kpi_row(df_latest: pd.DataFrame, df_prev: pd.DataFrame, agenda: dict)
         st.metric("Officers", n_officers)
     with c4:
         if n_alerts:
-            st.metric("⚠️ Alerts", n_alerts, delta="Action needed", delta_color="inverse")
+            st.metric("âš ï¸ Alerts", n_alerts, delta="Action needed", delta_color="inverse")
         else:
-            st.metric("✅ Alerts", "0", delta="All clear", delta_color="off")
+            st.metric("âœ… Alerts", "0", delta="All clear", delta_color="off")
 
 
 def render_pendency_breakdown(df_latest: pd.DataFrame, agenda: dict):
@@ -820,7 +818,7 @@ def render_charts(df_all: pd.DataFrame, df_latest: pd.DataFrame, agenda: dict):
     col_trend, col_dist = st.columns(2)
 
     with col_trend:
-        st.markdown("### 📈 Trend Over Time")
+        st.markdown("### ðŸ“ˆ Trend Over Time")
         trend = df_all.groupby("__date", as_index=False)["Total"].sum().sort_values("__date")
         if len(trend) > 1:
             fig = px.area(trend, x="__date", y="Total",
@@ -840,7 +838,7 @@ def render_charts(df_all: pd.DataFrame, df_latest: pd.DataFrame, agenda: dict):
             st.info("Need 2+ date snapshots for trend.")
 
     with col_dist:
-        st.markdown(f"### 🏢 {group_col} Distribution")
+        st.markdown(f"### ðŸ¢ {group_col} Distribution")
         sub_agg = (df_latest.groupby(group_col, as_index=False)["Total"]
                    .sum().sort_values("Total", ascending=False).head(12))
         if not sub_agg.empty:
@@ -867,7 +865,7 @@ def render_heatmap(df_latest: pd.DataFrame, agenda: dict):
     if not cols or df_latest.empty:
         return
     group_col = usable_group_col(df_latest, agenda)
-    st.markdown(f"### 🔥 Heatmap — {group_col} × Metric Type")
+    st.markdown(f"### ðŸ”¥ Heatmap â€” {group_col} Ã— Metric Type")
     sub_list = df_latest[group_col].dropna().unique()[:15]
     rows = []
     for s in sub_list:
@@ -926,7 +924,7 @@ def render_svamitva_charts(df_all: pd.DataFrame, df_latest: pd.DataFrame, df_pre
     col_trend, col_group = st.columns(2)
 
     with col_trend:
-        st.markdown("### 📈 Stage Trend")
+        st.markdown("### ðŸ“ˆ Stage Trend")
         trend_src = df_all.copy()
         trend_src["Snapshot"] = snapshot_label(trend_src)
         order = list(pd.unique(trend_src["Snapshot"]))
@@ -960,7 +958,7 @@ def render_svamitva_charts(df_all: pd.DataFrame, df_latest: pd.DataFrame, df_pre
             st.info("Need 2+ Svamitva snapshots for trend comparison.")
 
     with col_group:
-        st.markdown(f"### 🏢 Latest by {group_col}")
+        st.markdown(f"### ðŸ¢ Latest by {group_col}")
         st.caption(f"These bars show total pendency after adding every sub-tehsil/officer under each {group_col}.")
         group = (df_latest.groupby(group_col, as_index=False)[available]
                  .sum().sort_values("GROUND TRUTHING PENDING", ascending=False).head(12))
@@ -992,7 +990,7 @@ def render_svamitva_charts(df_all: pd.DataFrame, df_latest: pd.DataFrame, df_pre
     if df_prev.empty:
         return
 
-    st.markdown("### 🔁 Change Since Previous Snapshot")
+    st.markdown("### ðŸ” Change Since Previous Snapshot")
     latest = df_latest.groupby(group_col, as_index=False)[available].sum()
     prev = df_prev.groupby(group_col, as_index=False)[available].sum()
     change = latest.merge(prev, on=group_col, how="outer", suffixes=("", " Previous")).fillna(0)
@@ -1048,7 +1046,7 @@ def render_svamitva_lowest_progress(df_latest: pd.DataFrame, df_prev: pd.DataFra
             merged["Review Unit"] = merged["Sub Division"].astype(str) + " | " + merged["Review Unit"]
         return merged.sort_values(["Progress", current_col], ascending=[True, False]).head(5)
 
-    st.markdown("### 🚦 Top 5 Lowest Progress")
+    st.markdown("### ðŸš¦ Top 5 Lowest Progress")
     st.caption("These cards are ranked by progress since the previous review, not by highest current pending.")
     panels = []
     for label, metric_col in pending_metrics:
@@ -1245,70 +1243,46 @@ def render_fcr_kpis(df_latest: pd.DataFrame, df_prev: pd.DataFrame, agenda: dict
     )
 
 
-def render_fcr_charts(df_latest: pd.DataFrame, agenda: dict):
+def render_fcr_subdivision_load(df_latest: pd.DataFrame, agenda: dict):
     metric_cols = available_metric_cols(df_latest, agenda, "columns")
     if df_latest.empty or not metric_cols:
         return
 
-    group_col = usable_group_col(df_latest, agenda)
-    col_mix, col_sub = st.columns(2)
+    group_col = "Sub Division" if "Sub Division" in df_latest.columns else usable_group_col(df_latest, agenda)
+    grouped = df_latest.groupby(group_col, as_index=False)[metric_cols].sum()
+    grouped["Total pendency"] = grouped[metric_cols].sum(axis=1)
+    grouped = grouped[grouped["Total pendency"] > 0].sort_values("Total pendency", ascending=False)
 
-    with col_mix:
-        st.markdown("### Pendency mix")
-        totals = (
-            df_latest[metric_cols]
-            .sum()
-            .reset_index()
-            .rename(columns={"index": "Pendency Type", 0: "Cases"})
-        )
-        totals = totals[totals["Cases"] > 0].sort_values("Cases", ascending=True)
-        if totals.empty:
-            st.info("No pendency found in the latest snapshot.")
-        else:
-            fig = px.bar(
-                totals,
-                x="Cases",
-                y="Pendency Type",
-                orientation="h",
-                text="Cases",
-                color="Cases",
-                color_continuous_scale=[[0, "#dbeafe"], [1, agenda["color"]]],
-            )
-            fig.update_traces(texttemplate="%{text:,}", textposition="outside", cliponaxis=False)
-            fig.update_layout(
-                height=330, margin=dict(l=20, r=45, t=10, b=35),
-                plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
-                xaxis=dict(title="Pending cases", gridcolor="#e8ecf0"),
-                yaxis=dict(title=None),
-                showlegend=False, coloraxis_showscale=False,
-            )
-            st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.markdown(f"### {group_col} clearance load")
+    if grouped.empty:
+        st.info("No subdivision load available.")
+        return
 
-    with col_sub:
-        st.markdown(f"### {group_col} clearance load")
-        grouped = df_latest.groupby(group_col, as_index=False)[metric_cols].sum()
-        grouped["Total"] = grouped[metric_cols].sum(axis=1)
-        grouped = grouped.sort_values("Total", ascending=False)
-        if grouped.empty:
-            st.info("No subdivision load available.")
-        else:
-            long_df = grouped.melt(group_col, value_vars=metric_cols, var_name="Pendency Type", value_name="Cases")
-            fig = px.bar(
-                long_df,
-                x=group_col,
-                y="Cases",
-                color="Pendency Type",
-                text="Cases",
-            )
-            fig.update_traces(texttemplate="%{text:,}", textposition="inside")
-            fig.update_layout(
-                height=330, margin=dict(l=40, r=20, t=10, b=95),
-                plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
-                xaxis=dict(title=None, tickangle=35, categoryorder="array", categoryarray=grouped[group_col].tolist()),
-                yaxis=dict(title="Pending cases", gridcolor="#e8ecf0", rangemode="tozero"),
-                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0),
-            )
-            st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    fig = px.bar(
+        grouped,
+        x=group_col,
+        y="Total pendency",
+        text="Total pendency",
+        color="Total pendency",
+        color_continuous_scale=[[0, "#fee2e2"], [0.5, "#ef4444"], [1, "#991b1b"]],
+    )
+    fig.update_traces(texttemplate="%{text:,}", textposition="outside", cliponaxis=False)
+    fig.update_layout(
+        height=380, margin=dict(l=45, r=35, t=10, b=95),
+        plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
+        xaxis=dict(
+            title=None,
+            tickangle=35,
+            categoryorder="array",
+            categoryarray=grouped[group_col].tolist(),
+            gridcolor="#e8ecf0",
+            tickfont=dict(family="Arial Black", size=12, color="#0a2240"),
+        ),
+        yaxis=dict(title="Pending cases", gridcolor="#e8ecf0", rangemode="tozero"),
+        showlegend=False,
+        coloraxis_showscale=False,
+    )
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
 
 def render_fcr_top_officers(df_latest: pd.DataFrame, df_prev: pd.DataFrame, agenda: dict):
@@ -1462,7 +1436,7 @@ def render_fcr_priority_table(df_latest: pd.DataFrame, agenda: dict):
 def render_top_officers(df_latest: pd.DataFrame, df_all: pd.DataFrame, agenda: dict):
     if "Officer" not in df_latest.columns or useful_nunique(df_latest, "Officer") == 0:
         return
-    st.markdown("### 👤 Top 5 Officers by Pendency")
+    st.markdown("### ðŸ‘¤ Top 5 Officers by Pendency")
     top5 = df_latest.nlargest(5, "Total")
     color = agenda["color"]
     colors = [color + "ff", color + "cc", color + "aa", color + "88", color + "66"]
@@ -1481,7 +1455,7 @@ def render_top_officers(df_latest: pd.DataFrame, df_all: pd.DataFrame, agenda: d
         with c1:
             st.markdown(
                 f"<p style='margin:0.2rem 0;font-size:0.9rem;font-weight:600;color:#0a2240'>"
-                f"{esc(group_val)} › {esc(tehsil)} › {esc(officer)}</p>"
+                f"{esc(group_val)} â€º {esc(tehsil)} â€º {esc(officer)}</p>"
                 f"<p style='margin:0;font-size:1rem;color:#333'>"
                 f"<strong>{fmt(total)}</strong> "
                 f"<span style='color:#90a4ae;font-size:0.82rem'>({pct:.1f}% of total)</span></p>",
@@ -1519,7 +1493,7 @@ def render_top_officers(df_latest: pd.DataFrame, df_all: pd.DataFrame, agenda: d
 
 
 def render_summary_table(df_latest: pd.DataFrame, agenda: dict):
-    st.markdown("### 📋 Complete Summary Table")
+    st.markdown("### ðŸ“‹ Complete Summary Table")
     if df_latest.empty:
         st.info("No data.")
         return
@@ -1531,9 +1505,9 @@ def render_summary_table(df_latest: pd.DataFrame, agenda: dict):
     threshold = agenda["alert_threshold"]
     alert_col = agenda["target_col"] if agenda["target_col"] in tbl.columns else "Total"
     if agenda["target_type"] == "lower_better":
-        tbl["Alert"] = tbl[alert_col].apply(lambda x: "⚠️" if x > threshold else "✅")
+        tbl["Alert"] = tbl[alert_col].apply(lambda x: "âš ï¸" if x > threshold else "âœ…")
     else:
-        tbl["Alert"] = tbl[alert_col].apply(lambda x: "⚠️" if x < threshold else "✅")
+        tbl["Alert"] = tbl[alert_col].apply(lambda x: "âš ï¸" if x < threshold else "âœ…")
 
     # Column ordering
     id_candidates = ["Rank", *agenda.get("group_cols", []), "Sub Division",
@@ -1581,7 +1555,7 @@ def render_summary_table(df_latest: pd.DataFrame, agenda: dict):
     # Export
     csv = final.to_csv(index=False).encode("utf-8")
     st.download_button(
-        "⬇️ Download CSV",
+        "â¬‡ï¸ Download CSV",
         data=csv,
         file_name=f"{agenda['key']}_summary.csv",
         mime="text/csv",
@@ -1593,7 +1567,7 @@ def render_top3_subdivisions(df_latest: pd.DataFrame, df_prev: pd.DataFrame, age
     group_col = usable_group_col(df_latest, agenda)
     agg = (df_latest.groupby(group_col, as_index=False)["Total"]
            .sum().sort_values("Total", ascending=False).head(3).reset_index(drop=True))
-    medal = ["🥇", "🥈", "🥉"]
+    medal = ["ðŸ¥‡", "ðŸ¥ˆ", "ðŸ¥‰"]
     bar_colors = [color + "ff", color + "aa", color + "66"]
 
     for i, row in agg.iterrows():
@@ -1627,20 +1601,27 @@ def render_top3_subdivisions(df_latest: pd.DataFrame, df_prev: pd.DataFrame, age
             )
 
 
-# ─────────────────────────────── main tab renderer ──────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ main tab renderer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def render_agenda_tab(agenda: dict):
-    render_agenda_header(agenda)
-
-    # ── Load data ──
-    with st.spinner(f"Loading {agenda['label']} data…"):
+    # â”€â”€ Load data â”€â”€
+    with st.spinner(f"Loading {agenda['label']} dataâ€¦"):
         df_all = load_agenda(agenda["key"], cache_ver=st.session_state.get("cache_ver", "v1"))
+
+    # Resolve date label for agenda header badge
+    _date_label = ""
+    if not df_all.empty:
+        _ld = df_all["__date"].max()
+        if pd.notna(_ld):
+            _date_label = pd.to_datetime(_ld).strftime("%d %b %Y").lstrip("0")
+
+    render_agenda_header(agenda, _date_label)
 
     if df_all.empty:
         render_no_data(agenda)
         return
 
-    # ── In-tab filters (avoid sidebar duplication across tabs) ──
+    # â”€â”€ In-tab filters (avoid sidebar duplication across tabs) â”€â”€
     st.markdown("### Filters")
     fcol1, fcol2 = st.columns([2, 3])
     dates_available = df_all["__date"].dropna().unique()
@@ -1663,7 +1644,7 @@ def render_agenda_tab(agenda: dict):
         group_opts = sorted(df_all[group_col].dropna().unique().astype(str))
         selected_group = st.selectbox(group_col, ["All", *group_opts], key=f"group_single_{agenda['key']}")
 
-    # ── Apply filters ──
+    # â”€â”€ Apply filters â”€â”€
     df = df_all.copy()
     if dr and len(dr) == 2:
         df = df[(df["__date"] >= pd.to_datetime(dr[0])) & (df["__date"] <= pd.to_datetime(dr[1]))]
@@ -1691,17 +1672,17 @@ def render_agenda_tab(agenda: dict):
         st.warning("No data for selected filters.")
         return
 
-    # ── Date badge ──
+    # â”€â”€ Date badge â”€â”€
     if pd.notna(latest_date):
-        st.caption(f"📅 Showing data as of **{pd.to_datetime(latest_date).strftime('%d %B %Y')}**")
+        st.caption(f"ðŸ“… Showing data as of **{pd.to_datetime(latest_date).strftime('%d %B %Y')}**")
     else:
         src = df_latest["__source"].iloc[0] if not df_latest.empty else "unknown file"
-        st.caption(f"📄 Showing latest file snapshot: **{src}** (no YYYYMMDD date found in filename)")
+        st.caption(f"ðŸ“„ Showing latest file snapshot: **{src}** (no YYYYMMDD date found in filename)")
 
     if agenda["key"] == "svamitva":
         st.markdown("## Village-wise Portal")
         st.link_button(
-            "🔗 For Detailed Village wise List - Click Here",
+            "ðŸ”— For Detailed Village wise List - Click Here",
             "https://script.google.com/macros/s/AKfycbz_ElOe2y3f7-xS2p5fu2TPo5Nd32T2oV5Jo0_T10F_eSEf9pGHKHXaICo8n_TZK7rl/exec"
         )
         
@@ -1721,16 +1702,16 @@ def render_agenda_tab(agenda: dict):
         render_summary_table(df_latest, agenda)
         return
 
-    # ── KPI row ──
+    # â”€â”€ KPI row â”€â”€
     if agenda["key"] == "fcr":
         st.markdown("## Key Metrics")
         render_fcr_kpis(df_latest, df_prev, agenda)
 
+        st.markdown("## Sub Division Clearance Load")
+        render_fcr_subdivision_load(df_latest, agenda)
+
         st.markdown("## Officer-wise Pendency")
         render_fcr_top_officers(df_latest, df_prev, agenda)
-
-        st.markdown("## Pendency Analysis")
-        render_fcr_charts(df_latest, agenda)
 
         st.markdown("## Review Priorities")
         render_fcr_priority_table(df_latest, agenda)
@@ -1742,61 +1723,65 @@ def render_agenda_tab(agenda: dict):
     st.markdown("## Key Metrics")
     render_kpi_row(df_latest, df_prev, agenda)
 
-    # ── Pendency breakdown ──
+    # â”€â”€ Pendency breakdown â”€â”€
     if agenda["columns"]:
         st.markdown("## Workload Breakdown")
         render_pendency_breakdown(df_latest, agenda)
 
-    # ── Charts row ──
+    # â”€â”€ Charts row â”€â”€
     st.markdown("## Visual Overview")
     render_charts(df, df_latest, agenda)
 
-    # ── Heatmap ──
+    # â”€â”€ Heatmap â”€â”€
     if len(agenda["columns"]) > 1:
         render_heatmap(df_latest, agenda)
 
-    # ── Insights row ──
+    # â”€â”€ Insights row â”€â”€
     st.markdown("## Detailed Insights")
     col_left, col_right = st.columns([1, 1])
     with col_left:
-        st.markdown(f"### 🏆 Top 3 {usable_group_col(df_latest, agenda)}")
+        st.markdown(f"### ðŸ† Top 3 {usable_group_col(df_latest, agenda)}")
         render_top3_subdivisions(df_latest, df_prev, agenda)
     with col_right:
         if "Officer" in df_latest.columns:
             render_top_officers(df_latest, df, agenda)
 
-    # ── Summary table ──
+    # â”€â”€ Summary table â”€â”€
     st.markdown("## Full Data Table")
     render_summary_table(df_latest, agenda)
 
 
-# ─────────────────────────────── entry point ────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ entry point â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def main():
     inject_css()
 
-    # ── Header ──
+    # â”€â”€ Header â”€â”€
     today_str = current_app_time_label()
-    hcol1, hcol2 = st.columns([5, 1])
+    hcol1, hcol2 = st.columns([7, 0.9])
     with hcol1:
         st.markdown(f"""
         <div class="dash-header">
-            <div>
-                <h1>🏛️ Ludhiana District Revenue Dashboard</h1>
+            <div class="dash-header-left">
+                <div class="dash-seal">🏛️</div>
+                <div>
+                    <h1>Ludhiana District Revenue Dashboard</h1>
+                    <div class="subtitle">District Administration, Punjab &nbsp;·&nbsp; DC Review Tool</div>
+                </div>
             </div>
             <div class="header-badge">🕐 {today_str}</div>
         </div>
         """, unsafe_allow_html=True)
     with hcol2:
-        st.markdown("<br>", unsafe_allow_html=True)
-        if st.button("🔄 Refresh All", key="global_refresh"):
+        st.markdown("<div style='height:22px'></div>", unsafe_allow_html=True)
+        if st.button("↻ Refresh All", key="global_refresh"):
             load_agenda.clear()
             v = st.session_state.get("cache_ver", "v1")
             num = int(v.replace("v", "")) + 1 if v.replace("v", "").isdigit() else 1
             st.session_state["cache_ver"] = f"v{num}"
             st.rerun()
 
-    # ── Tabs ──
+    # â”€â”€ Tabs â”€â”€
     tab_labels = [f"{a['icon']} {a['label']}" for a in AGENDAS]
     tabs = st.tabs(tab_labels)
 
@@ -1804,16 +1789,17 @@ def main():
         with tab:
             render_agenda_tab(agenda)
 
-    # ── Footer ──
+    # â”€â”€ Footer â”€â”€
     st.markdown("""
     <div class="dash-footer">
         <div>Ludhiana District Administration &nbsp;|&nbsp; Revenue Dashboard v2.0</div>
         <div>Developed by <strong style='color:#1a4b8c'>Shivam Gulati</strong>, Land Revenue Fellow
-        &nbsp;·&nbsp; <a href='mailto:Shivamgulati137@gmail.com' style='color:#1a4b8c'>Shivamgulati137@gmail.com</a>
-        &nbsp;·&nbsp; 62844-12362</div>
+        &nbsp;Â·&nbsp; <a href='mailto:Shivamgulati137@gmail.com' style='color:#1a4b8c'>Shivamgulati137@gmail.com</a>
+        &nbsp;Â·&nbsp; 62844-12362</div>
     </div>
     """, unsafe_allow_html=True)
 
 
 if __name__ == "__main__":
     main()
+
